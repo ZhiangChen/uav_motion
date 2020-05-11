@@ -7,7 +7,7 @@
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
   <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
-  <maintainer email="zhiang@todo.todo">zhiang</maintainer>
+  <maintainer email="zch@asu.edu">zhi-ang chen</maintainer>
 
 
   <!-- One license tag required, multiple allowed, one license per tag -->
@@ -49,8 +49,52 @@
   <!-- Use doc_depend for packages you need only for building documentation: -->
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend>catkin_simple</buildtool_depend>
 
+  <build_depend>dynamic_reconfigure</build_depend>
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>rospy</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>nav_msgs</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>controller_msgs</build_depend>
+  <build_depend>tf</build_depend>
+  <build_depend>mavros</build_depend>
+  <build_depend>mavros_extras</build_depend>
+  <build_depend>mavros_msgs</build_depend>
+  <build_depend>mavros_extras</build_depend>
+  <build_depend> eigen_catkin</build_depend>
+  <exec_depend>dynamic_reconfigure</exec_depend>
+  <exec_depend>roscpp</exec_depend>
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>controller_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>tf</exec_depend>
+  <exec_depend>mavros</exec_depend>
+  <exec_depend>mavros_extras</exec_depend>
+  <exec_depend>mavros_msgs</exec_depend>
 
+  <depend>mav_msgs</depend>
+  <depend>mav_trajectory_generation</depend>
+  <depend>mav_trajectory_generation_ros</depend>
+  <depend>mav_visualization</depend>
+  <depend>mav_planning_msgs</depend>
+  <depend>eigen_checks</depend>
+  <depend>roslib</depend>
+
+  <build_depend>geometric_controller</build_depend>
+  <exec_depend>geometric_controller</exec_depend>
+
+  <build_depend>actionlib</build_depend>
+  <exec_depend>actionlib</exec_depend>
+  <build_depend>message_generation</build_depend>
+  <exec_depend>message_generation</exec_depend>
+  <exec_depend>message_runtime</exec_depend>
   <!-- The export tag contains other, unspecified, tags -->
   <export>
     <!-- Other tools can request additional information be placed here -->
