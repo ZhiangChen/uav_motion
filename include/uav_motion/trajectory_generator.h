@@ -42,10 +42,10 @@ protected:
 	Eigen::Affine3d current_pose_;
 	Eigen::Vector3d current_velocity_;
 	Eigen::Vector3d current_angular_velocity_;
-	const double max_v_; // m/s
-	const double max_a_; // m/s^2
-	const double max_ang_v_;
-	const double max_ang_a_;
+	double max_v_; // m/s
+	double max_a_; // m/s^2
+	double max_ang_v_;
+	double max_ang_a_;
 
 	const int dimension_;
 	mav_trajectory_generation::PolynomialOptimization<_N>* opt_ptr_;

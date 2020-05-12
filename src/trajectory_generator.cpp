@@ -8,8 +8,17 @@ current_velocity_(Eigen::Vector3d::Zero()),
 current_angular_velocity_(Eigen::Vector3d::Zero()),
 current_pose_(Eigen::Affine3d::Identity()),
 dimension_(dimension),
-opt_ptr_(new mav_trajectory_generation::PolynomialOptimization<_N>(dimension))
+opt_ptr_(new mav_trajectory_generation::PolynomialOptimization<_N>(dimension)),
+max_v_(2.0),
+max_a_(2.0),
+max_ang_v_(1.0),
+max_ang_a_(1.0)
 {
+	nh_.param<double>("max_v", max_v_, max_v_);
+	nh_.param<double>("max_a", max_a_, max_a_);
+	nh_.param<double>("max_ang_v", max_ang_v_, max_ang_v_);
+	nh_.param<double>("max_ang_a", max_ang_a_, max_ang_a_);
+
 	pub_trajectory_ = nh_.advertise<mav_planning_msgs::PolynomialTrajectory>("trajectory", 0);
 	sub_local_pose_ = nh_.subscribe("/mavros/local_position/pose", 1,
 			&TrajectoryGenerator::uavLocalPoseCallback, this);
@@ -106,9 +115,24 @@ void TrajectoryGenerator<_N>::waypointsCallback(const uav_motion::waypointsGoalC
 		vertices.push_back(point);
 	}
 	std::vector<double> segment_times;
-	//todo: initialize v_max, a_max through parameters
-	//segment_times = estimateSegmentTimes(vertices, v_max, a_max);
+12
+	segment_times = estimateSegmentTimes(vertices, max_v_, max_a_);
 
+	opt_ptr_->setupFromVertices(vertices, segment_times, derivative_to_optimize);
+	opt_ptr_->solveLinear();
+
+	mav_trajectory_generation::Segment::Vector segments;
+	opt_ptr_->getSegments(&segments);
+
+	mav_trajectory_generation::Trajectory trajectory;
+	opt_ptr_->getTrajectory(&trajectory);
+
+	mav_planning_msgs::PolynomialTrajectory msg;
+	mav_trajectory_generation::trajectoryToPolynomialTrajectoryMsg(trajectory,
+																	 &msg);
+	msg.header.frame_id = "world";
+
+	pub_trajectory_.publish(msg);
 
 	result_.success = true;
 	as_.setSucceeded(result_);
@@ -126,63 +150,7 @@ int main(int argc, char** argv)
 	int dimension = 4;
 	TrajectoryGenerator<N> traj_gen(nh, dimension);
 
-	/*ros::Publisher pub_trajectory = nh.advertise<mav_planning_msgs::PolynomialTrajectory>("trajectory",
-                                                              0);
-	
-	mav_trajectory_generation::Vertex::Vector vertices;
-	const int dimension = 3;
-	const int derivative_to_optimize = mav_trajectory_generation::derivative_order::SNAP;
-	mav_trajectory_generation::Vertex start(dimension), middle(dimension), end(dimension);
-
-	start.makeStartOrEnd(Eigen::Vector3d(0,0,1), derivative_to_optimize);
-	vertices.push_back(start);
-	
-	middle.addConstraint(mav_trajectory_generation::derivative_order::POSITION, Eigen::Vector3d(1,2,3));
-	vertices.push_back(middle);
-	
-	end.makeStartOrEnd(Eigen::Vector3d(2,1,5), derivative_to_optimize);
-	vertices.push_back(end);
-	
-	std::vector<double> segment_times;
-	const double v_max = 2.0;
-	const double a_max = 2.0;
-	segment_times = estimateSegmentTimes(vertices, v_max, a_max);
- 	
- 	const int N = 10;
-	mav_trajectory_generation::PolynomialOptimization<N> opt(dimension);
-	opt.setupFromVertices(vertices, segment_times, derivative_to_optimize);
-	opt.solveLinear();
-	
-	mav_trajectory_generation::Segment::Vector segments;
-	opt.getSegments(&segments);
-	
-	mav_trajectory_generation::Trajectory trajectory;
-	opt.getTrajectory(&trajectory);
-	
-	mav_planning_msgs::PolynomialTrajectory msg;
-	mav_trajectory_generation::trajectoryToPolynomialTrajectoryMsg(trajectory,
-	                                                                 &msg);
-	msg.header.frame_id = "world";
-	
-	ros::Rate loop_rate(10);
-	
-	for (int i=0; i<50; i++)
-	{
-		loop_rate.sleep();
-	}
-	pub_trajectory.publish(msg);
-	*/
 	ros::spin();
-	while(ros::ok())
-	{
-		//ROS_INFO_STREAM(msg);
-		//pub_trajectory.publish(msg);
-		//loop_rate.sleep();
-		ROS_INFO("x");
-
-	}
-	
-	
 	 	
  	std::cout<<"Done!"<<std::endl;
 	return 0;
