@@ -45,6 +45,9 @@ current_sample_time_(0.0)
 	stop_srv_ = nh_.advertiseService("stop_sampling", &TrajectorySamplerNode::stopSamplingCallback, this);
 	position_hold_client_ = nh_.serviceClient<std_srvs::Empty>("back_to_position_hold");
 
+	flatreferencePub_ = nh_.advertise<controller_msgs::FlatTarget>("reference/flatsetpoint", 1);
+	yawreferencePub_ = nh_.advertise<std_msgs::Float32>("reference/yaw", 1);
+
 	const bool oneshot = false;
 	const bool autostart = false;
 	publish_timer_ = nh_.createTimer(ros::Duration(dt_), &TrajectorySamplerNode::commandTimerCallback, this, oneshot, autostart);
@@ -149,6 +152,21 @@ void TrajectorySamplerNode::commandTimerCallback(const ros::TimerEvent&)
 		msg.points[0].time_from_start = ros::Duration(current_sample_time_);
 		command_pub_.publish(msg);
 		current_sample_time_ += dt_;
+
+		controller_msgs::FlatTarget traj_msg;
+		traj_msg.type_mask = 2;
+		traj_msg.header = msg.header;
+		traj_msg.position = msg.points[0].transforms[0].translation;
+		traj_msg.velocity = msg.points[0].velocities[0].linear;
+		traj_msg.acceleration = msg.points[0].accelerations[0].linear;
+		geometry_msgs::Quaternion quat = msg.points[0].transforms[0].rotation;
+		double yaw = tf::getYaw(quat);
+		std_msgs::Float32 yaw_msg;
+		yaw_msg.data = static_cast<float>(yaw);
+
+		flatreferencePub_.publish(traj_msg);
+		yawreferencePub_.publish(yaw_msg);
+
 	}
 	else
 	{

@@ -43,6 +43,10 @@
 #include <mav_planning_msgs/PolynomialSegment4D.h>
 #include <mav_planning_msgs/PolynomialTrajectory4D.h>
 
+#include <controller_msgs/FlatTarget.h>
+#include <std_msgs/Float32.h>
+#include <tf/transform_datatypes.h>
+
 class TrajectorySamplerNode {
  public:
   TrajectorySamplerNode(const ros::NodeHandle& nh,
@@ -68,6 +72,8 @@ class TrajectorySamplerNode {
   ros::Publisher command_pub_;
   ros::ServiceServer stop_srv_;
   ros::Time start_time_;
+  ros::Publisher flatreferencePub_;
+  ros::Publisher yawreferencePub_;
 
   // Service client for getting the MAV interface to listen to our sent
   // commands.
