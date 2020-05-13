@@ -6,18 +6,21 @@ nh_(nh),
 as_(nh_, "waypoints", boost::bind(&TrajectoryGenerator::waypointsCallback, this, _1), false),
 current_velocity_(Eigen::Vector3d::Zero()),
 current_angular_velocity_(Eigen::Vector3d::Zero()),
-current_pose_(Eigen::Affine3d::Identity()),
+current_pose_se3_(Eigen::Affine3d::Identity()),
 dimension_(dimension),
 opt_ptr_(new mav_trajectory_generation::PolynomialOptimization<_N>(dimension)),
 max_v_(2.0),
 max_a_(2.0),
 max_ang_v_(1.0),
-max_ang_a_(1.0)
+max_ang_a_(1.0),
+current_pose_as_start_(false)
 {
 	nh_.param<double>("max_v", max_v_, max_v_);
 	nh_.param<double>("max_a", max_a_, max_a_);
 	nh_.param<double>("max_ang_v", max_ang_v_, max_ang_v_);
 	nh_.param<double>("max_ang_a", max_ang_a_, max_ang_a_);
+	nh_.param<bool>("current_pose_as_start", current_pose_as_start_, current_pose_as_start_);
+
 
 	pub_trajectory_ = nh_.advertise<mav_planning_msgs::PolynomialTrajectory>("trajectory", 0);
 	sub_local_pose_ = nh_.subscribe("/mavros/local_position/pose", 1,
@@ -35,7 +38,7 @@ TrajectoryGenerator<_N>::~TrajectoryGenerator(void){}
 template <int _N>
 void TrajectoryGenerator<_N>::uavLocalPoseCallback(const geometry_msgs::PoseStamped::ConstPtr& pose)
 {
-	tf::poseMsgToEigen(pose->pose, current_pose_);
+	tf::poseMsgToEigen(pose->pose, current_pose_se3_);
 }
 
 template <int _N>
@@ -50,75 +53,59 @@ void TrajectoryGenerator<_N>::waypointsCallback(const uav_motion::waypointsGoalC
 {
 	waypoints_ = goal->poses;
 	mav_trajectory_generation::Vertex::Vector vertices;
-
-	for(int i=0; i<waypoints_.size(); i++)
+	if (current_pose_as_start_)
 	{
-		mav_trajectory_generation::Vertex point(dimension_);
-		if (i==0 || i==(waypoints_.size()-1))  // start point and end point
+		geometry_msgs::Pose current_pose;
+		tf::poseEigenToMsg(current_pose_se3_, current_pose);
+		if (addStartOrEnd_(current_pose, vertices))
 		{
-			if(dimension_ == 3)
+			for(int i=0; i<waypoints_.size(); i++)
 			{
-				geometry_msgs::Point position = waypoints_[i].position;
-				double x = position.x;
-				double y = position.y;
-				double z = position.z;
-				point.makeStartOrEnd(Eigen::Vector3d(x, y, z), derivative_to_optimize);
-			}
-			else if(dimension_ == 4)
-			{
-				geometry_msgs::Point position = waypoints_[i].position;
-				double x = position.x;
-				double y = position.y;
-				double z = position.z;
-				geometry_msgs::Quaternion quat = waypoints_[i].orientation;
-				double yaw = tf::getYaw(quat);
-				point.makeStartOrEnd(Eigen::Vector4d(x, y, z, yaw), derivative_to_optimize);
-			}
-			else
-			{
-				result_.success = false;
-				as_.setSucceeded(result_);
-				return;
-			}
-
-
-		}
-		else  // middle points
-		{
-			if(dimension_ == 3)
-			{
-				geometry_msgs::Point position = waypoints_[i].position;
-				double x = position.x;
-				double y = position.y;
-				double z = position.z;
-				point.addConstraint(mav_trajectory_generation::derivative_order::POSITION,
-						Eigen::Vector3d(x, y, z));
-			}
-			else if(dimension_ == 4)
-			{
-				geometry_msgs::Point position = waypoints_[i].position;
-				double x = position.x;
-				double y = position.y;
-				double z = position.z;
-				geometry_msgs::Quaternion quat = waypoints_[i].orientation;
-				double yaw = tf::getYaw(quat);
-				point.addConstraint(mav_trajectory_generation::derivative_order::POSITION,
-						Eigen::Vector4d(x, y, z, yaw));
-			}
-			else
-			{
-				result_.success = false;
-				as_.setSucceeded(result_);
-				return;
+				if (i==(waypoints_.size()-1))
+				{
+					addStartOrEnd_(waypoints_[i], vertices);
+				}
+				else
+				{
+					addMiddle_(waypoints_[i], vertices);
+				}
 			}
 		}
-		vertices.push_back(point);
+		else
+		{
+			result_.success = false;
+			as_.setSucceeded(result_);
+			return;
+		}
 	}
+	else
+	{
+		if (addStartOrEnd_(waypoints_[0], vertices))
+		{
+			for(int i=1; i<waypoints_.size(); i++)
+			{
+				if (i==(waypoints_.size()-1))
+				{
+					addStartOrEnd_(waypoints_[i], vertices);
+				}
+				else
+				{
+					addMiddle_(waypoints_[i], vertices);
+				}
+			}
+		}
+		else
+		{
+			result_.success = false;
+			as_.setSucceeded(result_);
+			return;
+		}
+	}
+
 	std::vector<double> segment_times;
-12
 	segment_times = estimateSegmentTimes(vertices, max_v_, max_a_);
 
-	opt_ptr_->setupFromVertices(vertices, segment_times, derivative_to_optimize);
+	opt_ptr_->setupFromVertices(vertices, segment_times, derivative_to_optimize_);
 	opt_ptr_->solveLinear();
 
 	mav_trajectory_generation::Segment::Vector segments;
@@ -138,7 +125,68 @@ void TrajectoryGenerator<_N>::waypointsCallback(const uav_motion::waypointsGoalC
 	as_.setSucceeded(result_);
 }
 
+template <int _N>
+bool TrajectoryGenerator<_N>::addStartOrEnd_(geometry_msgs::Pose pose, mav_trajectory_generation::Vertex::Vector& vertices)
+{
+	mav_trajectory_generation::Vertex point(dimension_);
+	if(dimension_ == 3)
+	{
+		geometry_msgs::Point position = pose.position;
+		double x = position.x;
+		double y = position.y;
+		double z = position.z;
+		point.makeStartOrEnd(Eigen::Vector3d(x, y, z), derivative_to_optimize_);
+	}
+	else if(dimension_ == 4)
+	{
+		geometry_msgs::Point position = pose.position;
+		double x = position.x;
+		double y = position.y;
+		double z = position.z;
+		geometry_msgs::Quaternion quat = pose.orientation;
+		double yaw = tf::getYaw(quat);
+		point.makeStartOrEnd(Eigen::Vector4d(x, y, z, yaw), derivative_to_optimize_);
+	}
+	else
+	{
+		return false;
+	}
+	vertices.push_back(point);
+	return true;
+}
 
+template <int _N>
+bool TrajectoryGenerator<_N>::addMiddle_(geometry_msgs::Pose pose, mav_trajectory_generation::Vertex::Vector& vertices)
+{
+	mav_trajectory_generation::Vertex point(dimension_);
+	if(dimension_ == 3)
+	{
+		geometry_msgs::Point position = pose.position;
+		double x = position.x;
+		double y = position.y;
+		double z = position.z;
+		point.addConstraint(mav_trajectory_generation::derivative_order::POSITION,
+				Eigen::Vector3d(x, y, z));
+	}
+	else if(dimension_ == 4)
+	{
+		geometry_msgs::Point position = pose.position;
+		double x = position.x;
+		double y = position.y;
+		double z = position.z;
+		geometry_msgs::Quaternion quat = pose.orientation;
+		double yaw = tf::getYaw(quat);
+		point.addConstraint(mav_trajectory_generation::derivative_order::POSITION,
+				Eigen::Vector4d(x, y, z, yaw));
+	}
+	else
+	{
+		return false;
+	}
+	vertices.push_back(point);
+	return true;
+
+}
 
 int main(int argc, char** argv)
 {

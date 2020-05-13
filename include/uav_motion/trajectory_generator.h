@@ -39,7 +39,7 @@ protected:
 	uav_motion::waypointsResult result_;
 	std::vector<geometry_msgs::Pose> waypoints_;
 
-	Eigen::Affine3d current_pose_;
+	Eigen::Affine3d current_pose_se3_;
 	Eigen::Vector3d current_velocity_;
 	Eigen::Vector3d current_angular_velocity_;
 	double max_v_; // m/s
@@ -49,7 +49,11 @@ protected:
 
 	const int dimension_;
 	mav_trajectory_generation::PolynomialOptimization<_N>* opt_ptr_;
-	const int derivative_to_optimize = mav_trajectory_generation::derivative_order::SNAP;
+	const int derivative_to_optimize_ = mav_trajectory_generation::derivative_order::SNAP;
+	bool current_pose_as_start_;
+
+	bool addStartOrEnd_(geometry_msgs::Pose pose, mav_trajectory_generation::Vertex::Vector& vertices);
+	bool addMiddle_(geometry_msgs::Pose pose, mav_trajectory_generation::Vertex::Vector& vertices);
 
 };
 
