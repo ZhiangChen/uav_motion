@@ -26,3 +26,25 @@ https://github.com/Jaeyoung-Lim/mavros_controllers.git
 cd ~/catkin_ws/
 catkin build
 ```
+
+# Getting Started
+This gives you an example of using this package in gazebo. 
+
+1. Launch a quadrotor with px4 and mavros in gazebo 
+```
+roslaunch px4 posix_sitl.launch
+```
+2. Define your keyframe waypoints in waypoint_generator.py and run the following commands
+```
+roslaunch uav_motion uav_motion.launch
+rosrun uav_motion waypoint_generator.py
+```
+
+# ROS Nodes
+### 1. trajectory_generator
+
+### 2. trajectory_sampler
+
+
+### 3. geometric_controller
+
