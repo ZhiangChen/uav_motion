@@ -42,9 +42,50 @@ rosrun uav_motion waypoint_generator.py
 
 # ROS Nodes
 ### 1. trajectory_generator
+Publishers:
+- "path_segments": mav_planning_msgs::PolynomialTrajectory <sup>1</sup>
+- "path_segments_4D": mav_planning_msgs::PolynomialTrajectory4D <sup>1</sup>
+
+<sup>1</sup> Either will be remapped to "trajecotry" depending on if yaw is included in key waypoints.
+
+Subscribers:
+- "/mavros/local_position/pose": geometry_msgs::PoseStamped
+- "waypoints": uav_motion::waypointsGoal <sup>2</sup>
+
+<sup>2</sup> It is a ROS action server.
+
+Parameters:
+- "mav_v": maximum velocity
+- "mav_a": maximum acceleration
+- "mav_ang_v": maximum angular velocity
+- "mav_ang_a": maximum angular acceleration
+- "current_pose_as_start": the current pose will be included as the start point of trajectory if true
 
 ### 2. trajectory_sampler
+Publishers:
+- "reference/flatsetpoint": controller_msgs::FlatTarget
+- "reference/yaw": std_msgs::Float32
 
+Subscribers:
+- "path_segments": mav_planning_msgs::PolynomialTrajectory <sup>1</sup>
+- "path_segments_4D": mav_planning_msgs::PolynomialTrajectory4D <sup>1</sup>
+
+Parameters:
+- "dt": trajectory sampling rate
 
 ### 3. geometric_controller
+Publishers:
+- "/command/bodyrate_command" -> "/mavros/setpoint_raw/attitude": mavros_msgs::AttitudeTarget
 
+Subscribers:
+- "reference/flatsetpoint": controller_msgs::FlatTarget
+- "reference/yaw": std_msgs::Float32
+
+More information about this node can be found on [Jaeyoung-Lim
+/mavros_controllers](https://github.com/Jaeyoung-Lim/mavros_controllers).
+
+### 4. waypoint_generator.py
+Publisher:
+- "waypoints": uav_motion.msg.waypointsAction <sup>3</sup>
+
+<sup>3</sup> It is a ROS action client.
