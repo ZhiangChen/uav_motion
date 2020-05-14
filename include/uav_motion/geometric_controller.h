@@ -86,6 +86,7 @@ class geometricCtrl
     double norm_thrust_const_, norm_thrust_offset_;
     double max_fb_acc_;
     double dx_, dy_, dz_;
+    double init_z_;
 
     mavros_msgs::State current_state_;
     mavros_msgs::SetMode offb_set_mode_;

@@ -12,7 +12,10 @@ geometricCtrl::geometricCtrl(const ros::NodeHandle& nh, const ros::NodeHandle& n
   ctrl_enable_(true),
   landing_commanded_(false),
   feedthrough_enable_(false),
-  node_state(WAITING_FOR_HOME_POSE) {
+  node_state(WAITING_FOR_HOME_POSE),
+  init_z_(1.0)
+
+{
 
   referenceSub_=nh_.subscribe("reference/setpoint",1, &geometricCtrl::targetCallback,this,ros::TransportHints().tcpNoDelay());
   flatreferenceSub_ = nh_.subscribe("reference/flatsetpoint", 1, &geometricCtrl::flattargetCallback, this, ros::TransportHints().tcpNoDelay());
@@ -53,8 +56,9 @@ geometricCtrl::geometricCtrl(const ros::NodeHandle& nh, const ros::NodeHandle& n
   nh_private_.param<double>("Kv_y", Kvel_y_, 1.5);
   nh_private_.param<double>("Kv_z", Kvel_z_, 3.3);
   nh_private_.param<int>("posehistory_window", posehistory_window_, 200);
+  nh_private_.param<double>("init_z", init_z_, init_z_);
 
-  targetPos_ << 0.0, 0.0, 1.0; //Initial Position
+  targetPos_ << 0.0, 0.0, init_z_; //Initial Position
   targetVel_ << 0.0, 0.0, 0.0;
   mavPos_ << 0.0, 0.0, 0.0;
   mavVel_ << 0.0, 0.0, 0.0;

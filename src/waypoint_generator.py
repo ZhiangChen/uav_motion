@@ -36,7 +36,7 @@ def waypoints_client(positions, yaws):
     
 if __name__ == '__main__':
     rospy.init_node('waypoints_client', anonymous=False)
-    positions = np.asarray(((0, 0, 5), (4, 3, 5), (-2, 6, 5), (-4, -2, 5)))
-    yaws = [0, 0.5, -0.5, 0]
+    positions = np.asarray(((0, 0, 5), (4, 4, 5), (0, 8, 5), (-4, 4, 5), (0, 0, 5), (4, -4, 5), (0, -8, 5), (-4, -4, 5), (0, 0, 5)))
+    yaws = [0, 0, 0, 0, 0, 0, 0, 0, 0]
     result = waypoints_client(positions, yaws)
     print(result)

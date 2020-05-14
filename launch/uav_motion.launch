@@ -8,6 +8,7 @@
 	<arg name="Kp_x" value="8.0" />
 	<arg name="Kp_y" value="8.0" />
 	<arg name="Kp_z" value="10.0" />
+	<arg name="init_z" value="1.5" />
 
 	<!-- trajectory_sampler -->
 	<arg name="publish_whole_trajectory" default="false"/>
@@ -30,6 +31,7 @@
 		<param name="Kp_x" value="$(arg Kp_x)" />
 		<param name="Kp_y" value="$(arg Kp_y)" />
 		<param name="Kp_z" value="$(arg Kp_z)" />
+		<param name="init_z" value="$(arg init_z)" />
 	</node>
 
     <node name="trajectory_sampler" pkg="uav_motion" type="trajectory_sampler" output="screen">
