@@ -45,5 +45,8 @@
 		<param name="current_pose_as_start" value="$(arg current_pose_as_start)" />
     </node>
 
+	<node type="rviz" name="rviz" pkg="rviz" args="-d $(find geometric_controller)/launch/config_file.rviz" />
+
+	<node pkg="rqt_reconfigure" type="rqt_reconfigure" output="screen" name="rqt_reconfigure" />
 
 </launch>
