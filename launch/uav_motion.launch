@@ -1,22 +1,48 @@
 <launch>
-    <arg name="verbose" default="false"/>
+	<!-- geometric_controller -->
+	<arg name="mav_name" default="iris"/>
+	<arg name="command_input" default="2" />
+	<arg name="gazebo_simulation" default="true" />
+	<arg name="enable_gazebo_state" value="true"/>
+	<arg name="max_acc" value="10.0" />
+	<arg name="Kp_x" value="8.0" />
+	<arg name="Kp_y" value="8.0" />
+	<arg name="Kp_z" value="10.0" />
 
-    <node name="lee_position_controller_node" pkg="rotors_control" type="lee_position_controller_node" output="screen">
-        <rosparam command="load" file="$(find rotors_gazebo)/resource/lee_controller_$(arg mav_name).yaml" />
-        <rosparam command="load" file="$(find rotors_gazebo)/resource/$(arg mav_name).yaml" />
-        <remap from="odometry" to="odometry_sensor1/odometry" />
-    </node>
+	<!-- trajectory_sampler -->
+	<arg name="publish_whole_trajectory" default="false"/>
+	<arg name="dt" default="0.01"/>
 
+	<!-- trajectory_generator -->
+	<arg name="mav_v" default="2.0"/>
+	<arg name="mav_a" default="1.0"/>
+	<arg name="mav_ang_v" default="1.0"/>
+	<arg name="mav_ang_a" default="0.5"/>
+	<arg name="current_pose_as_start" default="false"/>
 
-    <!--- Trajectory planner -->
-    <node name="planner" pkg="mav_trajectory_generation_example" type="trajectory_generation_example" output="screen">
-        <rosparam command="load" file="$(find mav_trajectory_generation_example)/cfg/$(arg mav_name)_params.yaml"/>
-        <remap from="uav_pose" to="odometry_sensor1/odometry"/>
-    </node>
+	<node name="geometric_controller" pkg="uav_motion" type="geometric_controller" output="screen">
+		<remap from="command/bodyrate_command" to="/mavros/setpoint_raw/attitude"/>
+		<param name="mav_name" type="string" value="$(arg mav_name)" />		
+		<param name="ctrl_mode" value="$(arg command_input)" />
+		<param name="enable_sim" value="$(arg gazebo_simulation)" />
+		<param name="enable_gazebo_state" value="$(arg enable_gazebo_state)"/>
+		<param name="max_acc" value="$(arg max_acc)" />
+		<param name="Kp_x" value="$(arg Kp_x)" />
+		<param name="Kp_y" value="$(arg Kp_y)" />
+		<param name="Kp_z" value="$(arg Kp_z)" />
+	</node>
 
-    <!--- Trajectory sampler -->
-    <node name="sampler" pkg="mav_trajectory_generation_ros" type="trajectory_sampler_node" output="screen">
+    <node name="trajectory_sampler" pkg="uav_motion" type="trajectory_sampler" output="screen">
         <remap from="path_segments_4D" to="trajectory"/>
+    </node>
+
+    <node name="trajectory_generator" pkg="uav_motion" type="trajectory_generator" output="screen">
+		<remap from="path_segments_4D" to="trajectory"/>
+		<param name="mav_v" value="$(arg mav_v)" />
+		<param name="mav_a" value="$(arg mav_a)" />
+		<param name="mav_ang_v" value="$(arg mav_ang_v)" />
+		<param name="mav_ang_a" value="$(arg mav_ang_a)" />
+		<param name="current_pose_as_start" value="$(arg current_pose_as_start)" />
     </node>
 
 

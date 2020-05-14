@@ -32,6 +32,7 @@ public:
 protected:
 	ros::NodeHandle& nh_;
 	ros::Publisher pub_trajectory_;
+	ros::Publisher pub_trajectory4d_;
 	ros::Subscriber sub_local_pose_;
 	ros::Subscriber sub_local_vel_;
 	actionlib::SimpleActionServer<uav_motion::waypointsAction> as_;

@@ -24,9 +24,6 @@
  * */
 #include <uav_motion/trajectory_sampler.h>
 
-//todo: add flatreferencePub_
-//todo: add a launch file
-
 TrajectorySamplerNode::TrajectorySamplerNode(const ros::NodeHandle& nh,
                                              const ros::NodeHandle& nh_private):
 nh_(nh),
@@ -150,8 +147,10 @@ void TrajectorySamplerNode::commandTimerCallback(const ros::TimerEvent&)
 		}
 		mav_msgs::msgMultiDofJointTrajectoryFromEigen(trajectory_point, &msg);
 		msg.points[0].time_from_start = ros::Duration(current_sample_time_);
-		command_pub_.publish(msg);
+		msg.header.stamp = ros::Time::now();
+		//command_pub_.publish(msg);
 		current_sample_time_ += dt_;
+
 
 		controller_msgs::FlatTarget traj_msg;
 		traj_msg.type_mask = 2;
@@ -167,6 +166,7 @@ void TrajectorySamplerNode::commandTimerCallback(const ros::TimerEvent&)
 		flatreferencePub_.publish(traj_msg);
 		yawreferencePub_.publish(yaw_msg);
 
+
 	}
 	else
 	{
@@ -179,6 +179,6 @@ int main(int argc, char** argv) {
 	ros::NodeHandle nh("");
 	ros::NodeHandle nh_private("~");
 	TrajectorySamplerNode trajectory_sampler_node(nh, nh_private);
-	ROS_INFO("Initialized trajectory sampler.");
+	ROS_INFO("trajectory_sampler has been initialized!");
 	ros::spin();
 }

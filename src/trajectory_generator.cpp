@@ -22,7 +22,8 @@ current_pose_as_start_(false)
 	nh_.param<bool>("current_pose_as_start", current_pose_as_start_, current_pose_as_start_);
 
 
-	pub_trajectory_ = nh_.advertise<mav_planning_msgs::PolynomialTrajectory>("trajectory", 0);
+	pub_trajectory_ = nh_.advertise<mav_planning_msgs::PolynomialTrajectory>("path_segments", 0);
+	pub_trajectory4d_ = nh_.advertise<mav_planning_msgs::PolynomialTrajectory4D>("path_segments_4D", 0);
 	sub_local_pose_ = nh_.subscribe("/mavros/local_position/pose", 1,
 			&TrajectoryGenerator::uavLocalPoseCallback, this);
 	sub_local_vel_ = nh_.subscribe("/mavros/local_position/velocity", 1,
@@ -114,12 +115,25 @@ void TrajectoryGenerator<_N>::waypointsCallback(const uav_motion::waypointsGoalC
 	mav_trajectory_generation::Trajectory trajectory;
 	opt_ptr_->getTrajectory(&trajectory);
 
-	mav_planning_msgs::PolynomialTrajectory msg;
-	mav_trajectory_generation::trajectoryToPolynomialTrajectoryMsg(trajectory,
-																	 &msg);
-	msg.header.frame_id = "world";
 
-	pub_trajectory_.publish(msg);
+
+	if (dimension_ == 3)
+	{
+		mav_planning_msgs::PolynomialTrajectory msg;
+		mav_trajectory_generation::trajectoryToPolynomialTrajectoryMsg(trajectory,
+																		 &msg);
+		msg.header.frame_id = "world";
+		pub_trajectory_.publish(msg);
+	}
+	else
+	{
+		mav_planning_msgs::PolynomialTrajectory4D msg;
+		mav_trajectory_generation::trajectoryToPolynomialTrajectoryMsg(trajectory,
+																		 &msg);
+		msg.header.frame_id = "world";
+		pub_trajectory4d_.publish(msg);
+	}
+
 
 	result_.success = true;
 	as_.setSucceeded(result_);
