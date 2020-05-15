@@ -24,7 +24,7 @@ catkin build
 2. Jaeyoung-Lim/mavros_controllers
 ```
 cd ~/catkin_ws/src
-https://github.com/Jaeyoung-Lim/mavros_controllers.git
+git clone https://github.com/Jaeyoung-Lim/mavros_controllers.git
 cd ~/catkin_ws/
 catkin build
 ```
