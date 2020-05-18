@@ -11,15 +11,14 @@
 	<arg name="init_z" value="1.5" />
 
 	<!-- trajectory_sampler -->
-	<arg name="publish_whole_trajectory" default="false"/>
 	<arg name="dt" default="0.01"/>
 
 	<!-- trajectory_generator -->
-	<arg name="mav_v" default="2.0"/>
+	<arg name="mav_v" default="1.0"/>
 	<arg name="mav_a" default="1.0"/>
 	<arg name="mav_ang_v" default="1.0"/>
 	<arg name="mav_ang_a" default="0.5"/>
-	<arg name="current_pose_as_start" default="false"/>
+	<arg name="current_pose_as_start" default="true"/>
 
 	<node name="geometric_controller" pkg="uav_motion" type="geometric_controller" output="screen">
 		<remap from="command/bodyrate_command" to="/mavros/setpoint_raw/attitude"/>
@@ -36,6 +35,7 @@
 
     <node name="trajectory_sampler" pkg="uav_motion" type="trajectory_sampler" output="screen">
         <remap from="path_segments_4D" to="trajectory"/>
+		<param name="dt" value="$(arg dt)" />
     </node>
 
     <node name="trajectory_generator" pkg="uav_motion" type="trajectory_generator" output="screen">

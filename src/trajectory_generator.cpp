@@ -15,11 +15,12 @@ max_ang_v_(1.0),
 max_ang_a_(1.0),
 current_pose_as_start_(false)
 {
-	nh_.param<double>("max_v", max_v_, max_v_);
-	nh_.param<double>("max_a", max_a_, max_a_);
-	nh_.param<double>("max_ang_v", max_ang_v_, max_ang_v_);
-	nh_.param<double>("max_ang_a", max_ang_a_, max_ang_a_);
-	nh_.param<bool>("current_pose_as_start", current_pose_as_start_, current_pose_as_start_);
+	nh_.param<double>("/trajectory_generator/max_v", max_v_, max_v_);
+	nh_.param<double>("/trajectory_generator/max_a", max_a_, max_a_);
+	nh_.param<double>("/trajectory_generator/max_ang_v", max_ang_v_, max_ang_v_);
+	nh_.param<double>("/trajectory_generator/max_ang_a", max_ang_a_, max_ang_a_);
+	nh_.param<bool>("/trajectory_generator/current_pose_as_start", current_pose_as_start_,
+			current_pose_as_start_);
 
 
 	pub_trajectory_ = nh_.advertise<mav_planning_msgs::PolynomialTrajectory>("path_segments", 0);
@@ -102,6 +103,7 @@ void TrajectoryGenerator<_N>::waypointsCallback(const uav_motion::waypointsGoalC
 			return;
 		}
 	}
+	//ROS_INFO_STREAM(vertices);
 
 	std::vector<double> segment_times;
 	segment_times = estimateSegmentTimes(vertices, max_v_, max_a_);

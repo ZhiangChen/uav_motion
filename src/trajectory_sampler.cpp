@@ -28,13 +28,11 @@ TrajectorySamplerNode::TrajectorySamplerNode(const ros::NodeHandle& nh,
                                              const ros::NodeHandle& nh_private):
 nh_(nh),
 nh_private_(nh_private),
-publish_whole_trajectory_(false),
 dt_(0.01),
 current_sample_time_(0.0)
 {
-	nh_private_.param("publish_whole_trajectory", publish_whole_trajectory_,
-					publish_whole_trajectory_);
-	nh_private_.param("dt", dt_, dt_);
+
+	nh_private_.param("/trajectory_sampler/dt", dt_, dt_);
 
 	command_pub_ = nh_.advertise<trajectory_msgs::MultiDOFJointTrajectory>(mav_msgs::default_topics::COMMAND_TRAJECTORY, 1);
 	trajectory_sub_ = nh_.subscribe("path_segments", 10, &TrajectorySamplerNode::pathSegmentsCallback, this);

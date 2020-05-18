@@ -80,7 +80,7 @@ class TrajectorySamplerNode {
   ros::ServiceClient position_hold_client_;
 
   // Flag whether to publish entire trajectory at once or not.
-  bool publish_whole_trajectory_;
+  bool publish_whole_trajectory_ = false;
   // Trajectory sampling interval.
   double dt_;
   // Time at currently published trajectory sample.
