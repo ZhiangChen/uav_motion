@@ -3,6 +3,8 @@
 This repository generates a minimum-snap polynomial trajectory and controls a quadrotor with PX4 framework. It depends on [ethz-asl/mav_trajectory_generation](https://github.com/ethz-asl/mav_trajectory_generation) and [Jaeyoung-Lim
 /mavros_controllers](https://github.com/Jaeyoung-Lim/mavros_controllers).
 
+[VIDEO DEMO](https://www.youtube.com/watch?v=CvvucGN3vZ0)
+
 # Installation
 1. ethz-asl/mav_trajectory_generation
 ```
@@ -22,7 +24,7 @@ catkin build
 2. Jaeyoung-Lim/mavros_controllers
 ```
 cd ~/catkin_ws/src
-https://github.com/Jaeyoung-Lim/mavros_controllers.git
+git clone https://github.com/Jaeyoung-Lim/mavros_controllers.git
 cd ~/catkin_ws/
 catkin build
 ```
@@ -81,7 +83,7 @@ Subscribers:
 - "reference/flatsetpoint": controller_msgs::FlatTarget
 - "reference/yaw": std_msgs::Float32
 
-More information about this node can be found on [Jaeyoung-Lim
+More information about this node can be found in [Jaeyoung-Lim
 /mavros_controllers](https://github.com/Jaeyoung-Lim/mavros_controllers).
 
 ### 4. waypoint_generator.py
