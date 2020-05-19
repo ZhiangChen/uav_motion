@@ -15,7 +15,8 @@ max_ang_v_(1.0),
 max_ang_a_(1.0),
 current_pose_as_start_(false)
 {
-	nh_.param<double>("/trajectory_generator/max_v", max_v_, max_v_);
+	ros::Duration(0.5).sleep();
+	nh_.param<double>("/trajectory_generator/mav_v", max_v_, max_v_);
 	nh_.param<double>("/trajectory_generator/max_a", max_a_, max_a_);
 	nh_.param<double>("/trajectory_generator/max_ang_v", max_ang_v_, max_ang_v_);
 	nh_.param<double>("/trajectory_generator/max_ang_a", max_ang_a_, max_ang_a_);

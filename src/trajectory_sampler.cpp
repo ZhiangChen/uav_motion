@@ -31,7 +31,7 @@ nh_private_(nh_private),
 dt_(0.01),
 current_sample_time_(0.0)
 {
-
+	ros::Duration(0.5).sleep();
 	nh_private_.param("/trajectory_sampler/dt", dt_, dt_);
 
 	command_pub_ = nh_.advertise<trajectory_msgs::MultiDOFJointTrajectory>(mav_msgs::default_topics::COMMAND_TRAJECTORY, 1);
