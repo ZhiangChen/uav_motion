@@ -3,6 +3,7 @@
 
 #include <ros/ros.h>
 #include <mav_trajectory_generation/polynomial_optimization_linear.h>
+#include <mav_trajectory_generation/polynomial_optimization_nonlinear.h>
 #include <mav_trajectory_generation_ros/ros_conversions.h>
 #include <mav_trajectory_generation/trajectory.h>
 #include <nav_msgs/Odometry.h>
@@ -49,9 +50,10 @@ protected:
 	double max_ang_a_;
 
 	const int dimension_;
-	mav_trajectory_generation::PolynomialOptimization<_N>* opt_ptr_;
 	const int derivative_to_optimize_ = mav_trajectory_generation::derivative_order::SNAP;
 	bool current_pose_as_start_;
+	mav_trajectory_generation::NonlinearOptimizationParameters parameters_;
+
 
 	bool addStartOrEnd_(geometry_msgs::Pose pose, mav_trajectory_generation::Vertex::Vector& vertices);
 	bool addMiddle_(geometry_msgs::Pose pose, mav_trajectory_generation::Vertex::Vector& vertices);

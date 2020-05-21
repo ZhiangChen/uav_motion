@@ -8,7 +8,6 @@ current_velocity_(Eigen::Vector3d::Zero()),
 current_angular_velocity_(Eigen::Vector3d::Zero()),
 current_pose_se3_(Eigen::Affine3d::Identity()),
 dimension_(dimension),
-opt_ptr_(new mav_trajectory_generation::PolynomialOptimization<_N>(dimension)),
 max_v_(2.0),
 max_a_(2.0),
 max_ang_v_(1.0),
@@ -22,7 +21,6 @@ current_pose_as_start_(false)
 	nh_.param<double>("/trajectory_generator/max_ang_a", max_ang_a_, max_ang_a_);
 	nh_.param<bool>("/trajectory_generator/current_pose_as_start", current_pose_as_start_,
 			current_pose_as_start_);
-
 
 	pub_trajectory_ = nh_.advertise<mav_planning_msgs::PolynomialTrajectory>("path_segments", 0);
 	pub_trajectory4d_ = nh_.advertise<mav_planning_msgs::PolynomialTrajectory4D>("path_segments_4D", 0);
@@ -104,21 +102,34 @@ void TrajectoryGenerator<_N>::waypointsCallback(const uav_motion::waypointsGoalC
 			return;
 		}
 	}
-	//ROS_INFO_STREAM(vertices);
+	ROS_INFO_STREAM(vertices);
 
 	std::vector<double> segment_times;
 	segment_times = estimateSegmentTimes(vertices, max_v_, max_a_);
+	mav_trajectory_generation::Segment::Vector segments;
+	mav_trajectory_generation::Trajectory trajectory;
 
+	/* Linear optimization*/
+	mav_trajectory_generation::PolynomialOptimization<_N>* opt_ptr_ =
+			new mav_trajectory_generation::PolynomialOptimization<_N>(dimension_);
 	opt_ptr_->setupFromVertices(vertices, segment_times, derivative_to_optimize_);
 	opt_ptr_->solveLinear();
-
-	mav_trajectory_generation::Segment::Vector segments;
 	opt_ptr_->getSegments(&segments);
-
-	mav_trajectory_generation::Trajectory trajectory;
 	opt_ptr_->getTrajectory(&trajectory);
 
-
+	/* Non-linear optimization*/
+	/*
+	mav_trajectory_generation::PolynomialOptimizationNonLinear<_N>* non_opt_ptr_ =
+			new mav_trajectory_generation::PolynomialOptimizationNonLinear<_N>(dimension_, parameters_);
+	non_opt_ptr_->addMaximumMagnitudeConstraint(mav_trajectory_generation::derivative_order::VELOCITY, max_v_);
+	non_opt_ptr_->addMaximumMagnitudeConstraint(mav_trajectory_generation::derivative_order::ACCELERATION, max_a_);
+	non_opt_ptr_->setupFromVertices(vertices, segment_times, derivative_to_optimize_);
+	non_opt_ptr_->optimize();
+	ROS_INFO("y");
+	non_opt_ptr_->getPolynomialOptimizationRef().getSegments(&segments);
+	ROS_INFO("z");
+	non_opt_ptr_->getTrajectory(&trajectory);
+	*/
 
 	if (dimension_ == 3)
 	{
