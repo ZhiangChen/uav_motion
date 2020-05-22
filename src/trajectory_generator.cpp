@@ -52,23 +52,31 @@ void TrajectoryGenerator<_N>::uavVelocityCallback(const geometry_msgs::TwistStam
 template <int _N>
 void TrajectoryGenerator<_N>::waypointsCallback(const uav_motion::waypointsGoalConstPtr& goal)
 {
-	waypoints_ = goal->poses;
+
+	positions_ = goal->positions;
+	yaws_ = goal->yaws;
 	mav_trajectory_generation::Vertex::Vector vertices;
 	if (current_pose_as_start_)
 	{
 		geometry_msgs::Pose current_pose;
 		tf::poseEigenToMsg(current_pose_se3_, current_pose);
-		if (addStartOrEnd_(current_pose, vertices))
+		geometry_msgs::Point position;
+		position.x = current_pose.position.x;
+		position.y = current_pose.position.y;
+		position.z = current_pose.position.z;
+		geometry_msgs::Quaternion quat = current_pose.orientation;
+		double yaw = tf::getYaw(quat);
+		if (addStartOrEnd_(position, yaw, vertices))
 		{
-			for(int i=0; i<waypoints_.size(); i++)
+			for(int i=0; i<positions_.size(); i++)
 			{
-				if (i==(waypoints_.size()-1))
+				if (i==(positions_.size()-1))
 				{
-					addStartOrEnd_(waypoints_[i], vertices);
+					addStartOrEnd_(positions_[i], yaws_[i], vertices);
 				}
 				else
 				{
-					addMiddle_(waypoints_[i], vertices);
+					addMiddle_(positions_[i], yaws_[i], vertices);
 				}
 			}
 		}
@@ -81,17 +89,17 @@ void TrajectoryGenerator<_N>::waypointsCallback(const uav_motion::waypointsGoalC
 	}
 	else
 	{
-		if (addStartOrEnd_(waypoints_[0], vertices))
+		if (addStartOrEnd_(positions_[0], yaws_[0], vertices))
 		{
-			for(int i=1; i<waypoints_.size(); i++)
+			for(int i=1; i<positions_.size(); i++)
 			{
-				if (i==(waypoints_.size()-1))
+				if (i==(positions_.size()-1))
 				{
-					addStartOrEnd_(waypoints_[i], vertices);
+					addStartOrEnd_(positions_[i], yaws_[i], vertices);
 				}
 				else
 				{
-					addMiddle_(waypoints_[i], vertices);
+					addMiddle_(positions_[i], yaws_[i], vertices);
 				}
 			}
 		}
@@ -108,6 +116,7 @@ void TrajectoryGenerator<_N>::waypointsCallback(const uav_motion::waypointsGoalC
 	segment_times = estimateSegmentTimes(vertices, max_v_, max_a_);
 	mav_trajectory_generation::Segment::Vector segments;
 	mav_trajectory_generation::Trajectory trajectory;
+
 
 	/* Linear optimization*/
 	mav_trajectory_generation::PolynomialOptimization<_N>* opt_ptr_ =
@@ -151,15 +160,15 @@ void TrajectoryGenerator<_N>::waypointsCallback(const uav_motion::waypointsGoalC
 
 	result_.success = true;
 	as_.setSucceeded(result_);
+
 }
 
 template <int _N>
-bool TrajectoryGenerator<_N>::addStartOrEnd_(geometry_msgs::Pose pose, mav_trajectory_generation::Vertex::Vector& vertices)
+bool TrajectoryGenerator<_N>::addStartOrEnd_(geometry_msgs::Point position, double yaw, mav_trajectory_generation::Vertex::Vector& vertices)
 {
 	mav_trajectory_generation::Vertex point(dimension_);
 	if(dimension_ == 3)
 	{
-		geometry_msgs::Point position = pose.position;
 		double x = position.x;
 		double y = position.y;
 		double z = position.z;
@@ -167,12 +176,9 @@ bool TrajectoryGenerator<_N>::addStartOrEnd_(geometry_msgs::Pose pose, mav_traje
 	}
 	else if(dimension_ == 4)
 	{
-		geometry_msgs::Point position = pose.position;
 		double x = position.x;
 		double y = position.y;
 		double z = position.z;
-		geometry_msgs::Quaternion quat = pose.orientation;
-		double yaw = tf::getYaw(quat);
 		point.makeStartOrEnd(Eigen::Vector4d(x, y, z, yaw), derivative_to_optimize_);
 	}
 	else
@@ -184,12 +190,11 @@ bool TrajectoryGenerator<_N>::addStartOrEnd_(geometry_msgs::Pose pose, mav_traje
 }
 
 template <int _N>
-bool TrajectoryGenerator<_N>::addMiddle_(geometry_msgs::Pose pose, mav_trajectory_generation::Vertex::Vector& vertices)
+bool TrajectoryGenerator<_N>::addMiddle_(geometry_msgs::Point position, double yaw, mav_trajectory_generation::Vertex::Vector& vertices)
 {
 	mav_trajectory_generation::Vertex point(dimension_);
 	if(dimension_ == 3)
 	{
-		geometry_msgs::Point position = pose.position;
 		double x = position.x;
 		double y = position.y;
 		double z = position.z;
@@ -198,12 +203,9 @@ bool TrajectoryGenerator<_N>::addMiddle_(geometry_msgs::Pose pose, mav_trajector
 	}
 	else if(dimension_ == 4)
 	{
-		geometry_msgs::Point position = pose.position;
 		double x = position.x;
 		double y = position.y;
 		double z = position.z;
-		geometry_msgs::Quaternion quat = pose.orientation;
-		double yaw = tf::getYaw(quat);
 		point.addConstraint(mav_trajectory_generation::derivative_order::POSITION,
 				Eigen::Vector4d(x, y, z, yaw));
 	}

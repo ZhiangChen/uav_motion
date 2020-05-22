@@ -132,7 +132,14 @@ void geometricCtrl::flattargetCallback(const controller_msgs::FlatTarget& msg) {
 }
 
 void geometricCtrl::yawtargetCallback(const std_msgs::Float32& msg) {
-  if(!velocity_yaw_) mavYaw_ = double(msg.data);
+  if(!velocity_yaw_)
+  {
+	  double yaw = double(msg.data);
+	  //while (yaw > 3.141592653589793) yaw = yaw - 6.283185307179586;
+	  //while (yaw < -3.14159265358979) yaw = yaw + 6.28318530717958;
+
+	  mavYaw_ = yaw;
+  }
 }
 
 void geometricCtrl::multiDOFJointCallback(const trajectory_msgs::MultiDOFJointTrajectory& msg) {

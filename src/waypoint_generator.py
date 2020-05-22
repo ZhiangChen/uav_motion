@@ -15,17 +15,10 @@ def waypoints_client(positions, yaws):
     for i in range(len(yaws)):
         p = positions[i]
         yaw = yaws[i]
-        q = quaternion_from_euler(0, 0, yaw)
-        pose = geometry_msgs.msg.Pose()
-        pose.position.x = float(p[0])
-        pose.position.y = float(p[1])
-        pose.position.z = float(p[2])
-        pose.orientation.x = q[0]
-        pose.orientation.y = q[1]
-        pose.orientation.z = q[2]
-        pose.orientation.w = q[3]
+        position = geometry_msgs.msg.Point(p[0], p[1], p[2])
         
-        goal.poses.append(pose)
+        goal.positions.append(position)
+        goal.yaws.append(yaw)
     
     client.send_goal(goal)
     print("goal sent")
@@ -33,10 +26,9 @@ def waypoints_client(positions, yaws):
     return client.get_result()
     
     
-    
 if __name__ == '__main__':
     rospy.init_node('waypoints_client', anonymous=False)
     positions = np.asarray(((0, 0, 5), (4, 4, 10), (0, 8, 10), (-4, 4, 10), (0, 0, 10), (4, -4, 5), (0, -8, 5), (-4, -4, 5), (0, 0, 5)))
-    yaws = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+    yaws = [0, 1, 2, 3, 4, 5, 6, 7, 8]
     result = waypoints_client(positions, yaws)
     print(result)

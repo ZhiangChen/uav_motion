@@ -39,7 +39,8 @@ protected:
 	actionlib::SimpleActionServer<uav_motion::waypointsAction> as_;
 	uav_motion::waypointsFeedback feedback_;
 	uav_motion::waypointsResult result_;
-	std::vector<geometry_msgs::Pose> waypoints_;
+	std::vector<geometry_msgs::Point> positions_;
+	std::vector<double> yaws_;
 
 	Eigen::Affine3d current_pose_se3_;
 	Eigen::Vector3d current_velocity_;
@@ -55,8 +56,8 @@ protected:
 	mav_trajectory_generation::NonlinearOptimizationParameters parameters_;
 
 
-	bool addStartOrEnd_(geometry_msgs::Pose pose, mav_trajectory_generation::Vertex::Vector& vertices);
-	bool addMiddle_(geometry_msgs::Pose pose, mav_trajectory_generation::Vertex::Vector& vertices);
+	bool addStartOrEnd_(geometry_msgs::Point position, double yaw, mav_trajectory_generation::Vertex::Vector& vertices);
+	bool addMiddle_(geometry_msgs::Point, double yaw, mav_trajectory_generation::Vertex::Vector& vertices);
 
 };
 
