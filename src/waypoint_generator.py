@@ -6,6 +6,7 @@ import uav_motion.msg
 import geometry_msgs.msg
 from tf.transformations import quaternion_from_euler
 import numpy as np
+from std_srvs.srv import Empty
 
 def waypoints_client(positions, yaws):
     client = actionlib.SimpleActionClient('waypoints', uav_motion.msg.waypointsAction)
@@ -28,7 +29,16 @@ def waypoints_client(positions, yaws):
     
 if __name__ == '__main__':
     rospy.init_node('waypoints_client', anonymous=False)
+    rospy.wait_for_service('stop_sampling')
+    stop_srv_client_ = rospy.ServiceProxy('stop_sampling', Empty)
     positions = np.asarray(((0, 0, 5), (4, 4, 10), (0, 8, 10), (-4, 4, 10), (0, 0, 10), (4, -4, 5), (0, -8, 5), (-4, -4, 5), (0, 0, 5)))
     yaws = [0, 1, 2, 3, 4, 5, 6, 7, 8]
     result = waypoints_client(positions, yaws)
-    print(result)
+    rospy.sleep(5.)
+    positions = np.asarray(((-4, 4, 10), (0, 0, 10), (4, -4, 5), (0, -8, 5), (-4, -4, 5), (0, 0, 5)))
+    yaws = [3, 4, 5, 6, 7, 8]
+    result = waypoints_client(positions, yaws)
+    rospy.sleep(5.)
+    positions = np.asarray(((0, -8, 5), (-4, -4, 5), (0, 0, 5)))
+    yaws = [6, 7, 8]
+    result = waypoints_client(positions, yaws)

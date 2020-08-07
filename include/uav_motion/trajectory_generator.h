@@ -58,6 +58,7 @@ protected:
 
 	bool addStartOrEnd_(geometry_msgs::Point position, double yaw, mav_trajectory_generation::Vertex::Vector& vertices);
 	bool addMiddle_(geometry_msgs::Point, double yaw, mav_trajectory_generation::Vertex::Vector& vertices);
+	bool addCurrentStart_(geometry_msgs::Point position, double yaw, mav_trajectory_generation::Vertex::Vector& vertices);
 
 };
 

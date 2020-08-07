@@ -34,7 +34,7 @@ This gives you an example of using this package in gazebo.
 
 1. Launch a quadrotor with px4 and mavros in gazebo 
 ```
-roslaunch px4 posix_sitl.launch
+roslaunch px4 mavros_posix_sitl.launch
 ```
 2. Define your keyframe waypoints in waypoint_generator.py and run the following commands
 ```

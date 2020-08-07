@@ -26,7 +26,7 @@ current_pose_as_start_(false)
 	pub_trajectory4d_ = nh_.advertise<mav_planning_msgs::PolynomialTrajectory4D>("path_segments_4D", 0);
 	sub_local_pose_ = nh_.subscribe("/mavros/local_position/pose", 1,
 			&TrajectoryGenerator::uavLocalPoseCallback, this);
-	sub_local_vel_ = nh_.subscribe("/mavros/local_position/velocity", 1,
+	sub_local_vel_ = nh_.subscribe("/mavros/local_position/velocity_body", 1,
 				&TrajectoryGenerator::uavVelocityCallback, this);
 	as_.start();
 
@@ -56,6 +56,7 @@ void TrajectoryGenerator<_N>::waypointsCallback(const uav_motion::waypointsGoalC
 	positions_ = goal->positions;
 	yaws_ = goal->yaws;
 	mav_trajectory_generation::Vertex::Vector vertices;
+
 	if (current_pose_as_start_)
 	{
 		geometry_msgs::Pose current_pose;
@@ -66,7 +67,8 @@ void TrajectoryGenerator<_N>::waypointsCallback(const uav_motion::waypointsGoalC
 		position.z = current_pose.position.z;
 		geometry_msgs::Quaternion quat = current_pose.orientation;
 		double yaw = tf::getYaw(quat);
-		if (addStartOrEnd_(position, yaw, vertices))
+		//if (addStartOrEnd_(position, yaw, vertices))
+		if (addCurrentStart_(position, yaw, vertices))
 		{
 			for(int i=0; i<positions_.size(); i++)
 			{
@@ -110,6 +112,8 @@ void TrajectoryGenerator<_N>::waypointsCallback(const uav_motion::waypointsGoalC
 			return;
 		}
 	}
+
+
 	ROS_INFO_STREAM(vertices);
 
 	std::vector<double> segment_times;
@@ -180,6 +184,39 @@ bool TrajectoryGenerator<_N>::addStartOrEnd_(geometry_msgs::Point position, doub
 		double y = position.y;
 		double z = position.z;
 		point.makeStartOrEnd(Eigen::Vector4d(x, y, z, yaw), derivative_to_optimize_);
+	}
+	else
+	{
+		return false;
+	}
+	vertices.push_back(point);
+	return true;
+}
+
+template <int _N>
+bool TrajectoryGenerator<_N>::addCurrentStart_(geometry_msgs::Point position, double yaw, mav_trajectory_generation::Vertex::Vector& vertices)
+{
+	mav_trajectory_generation::Vertex point(dimension_);
+	if(dimension_ == 3)
+	{
+		double x = position.x;
+		double y = position.y;
+		double z = position.z;
+		point.addConstraint(mav_trajectory_generation::derivative_order::POSITION,
+				Eigen::Vector3d(x, y, z));
+		point.addConstraint(mav_trajectory_generation::derivative_order::VELOCITY, current_velocity_);
+	}
+	else if(dimension_ == 4)
+	{
+		double x = position.x;
+		double y = position.y;
+		double z = position.z;
+		point.addConstraint(mav_trajectory_generation::derivative_order::POSITION,
+				Eigen::Vector4d(x, y, z, yaw));
+		//point.addConstraint(mav_trajectory_generation::derivative_order::VELOCITY, current_velocity_);
+		point.addConstraint(mav_trajectory_generation::derivative_order::VELOCITY, Eigen::Vector4d(current_velocity_[0],
+				current_velocity_[1], current_velocity_[2], current_angular_velocity_[2]));
+		//std::cout<<current_velocity_<<std::endl;
 	}
 	else
 	{
