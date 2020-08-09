@@ -34,11 +34,11 @@ if __name__ == '__main__':
     positions = np.asarray(((0, 0, 5), (4, 4, 10), (0, 8, 10), (-4, 4, 10), (0, 0, 10), (4, -4, 5), (0, -8, 5), (-4, -4, 5), (0, 0, 5)))
     yaws = [0, 1, 2, 3, 4, 5, 6, 7, 8]
     result = waypoints_client(positions, yaws)
-    rospy.sleep(5.)
-    positions = np.asarray(((-4, 4, 10), (0, 0, 10), (4, -4, 5), (0, -8, 5), (-4, -4, 5), (0, 0, 5)))
-    yaws = [3, 4, 5, 6, 7, 8]
-    result = waypoints_client(positions, yaws)
-    rospy.sleep(5.)
-    positions = np.asarray(((0, -8, 5), (-4, -4, 5), (0, 0, 5)))
-    yaws = [6, 7, 8]
-    result = waypoints_client(positions, yaws)
+    #rospy.sleep(5.)
+    #positions = np.asarray(((-4, 4, 10), (0, 0, 10), (4, -4, 5), (0, -8, 5), (-4, -4, 5), (0, 0, 5)))
+    #yaws = [3, 4, 5, 6, 7, 8]
+    #result = waypoints_client(positions, yaws)
+    #rospy.sleep(5.)
+    #positions = np.asarray(((0, -8, 5), (-4, -4, 5), (0, 0, 5)))
+    #yaws = [6, 7, 8]
+    #result = waypoints_client(positions, yaws)

@@ -5,6 +5,9 @@ This repository generates a minimum-snap polynomial trajectory and controls a qu
 
 [VIDEO DEMO](https://www.youtube.com/watch?v=CvvucGN3vZ0)
 
+![Motion System](motion_system.png)
+Give uav_motion a set of high-level waypoints, and it will do the remaining.
+
 # Installation
 1. ethz-asl/mav_trajectory_generation
 ```
