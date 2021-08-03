@@ -31,8 +31,8 @@ if __name__ == '__main__':
     rospy.init_node('waypoints_client', anonymous=False)
     rospy.wait_for_service('stop_sampling')
     stop_srv_client_ = rospy.ServiceProxy('stop_sampling', Empty)
-    positions = np.asarray(((0, 0, 5), (8, 8, 10), (0, 16, 10), (-8, 8, 10), (0, 0, 10), (8, -8, 5), (0, -16, 5), (-8, -8, 5), (0, 0, 10)))
-    yaws = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+    positions = np.asarray(((10, 0, 1), (10, -10, 1), (0, -10, 1), (0, 0, 1)))
+    yaws = [0.1, 0.1, 0.1, 0]
     result = waypoints_client(positions, yaws)
     #rospy.sleep(5.)
     #positions = np.asarray(((-4, 4, 10), (0, 0, 10), (4, -4, 5), (0, -8, 5), (-4, -4, 5), (0, 0, 5)))
