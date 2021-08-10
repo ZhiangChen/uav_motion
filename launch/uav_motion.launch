@@ -7,7 +7,7 @@
 	<arg name="max_acc" value="10.0" />
 	<arg name="Kp_x" value="8.0" />
 	<arg name="Kp_y" value="8.0" />
-	<arg name="Kp_z" value="10.0" />
+	<arg name="Kp_z" value="8.0" />
 	<arg name="init_z" value="1.5" />
 
 	<!-- trajectory_sampler -->
