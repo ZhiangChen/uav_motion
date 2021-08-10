@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 Zhiang Chen
 """
@@ -93,6 +93,7 @@ class PathPlanner(object):
 
 if __name__ == '__main__':
     rospy.init_node('waypoints_client', anonymous=False)
+    rospy.set_param('/geometric_controller/Kp_z', 8)
     path_planner = PathPlanner()
     path_planner.startSearch()
     try:
