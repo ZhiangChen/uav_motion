@@ -7,14 +7,14 @@
 	<arg name="max_acc" value="10.0" />
 	<arg name="Kp_x" value="8.0" />
 	<arg name="Kp_y" value="8.0" />
-	<arg name="Kp_z" value="5.0" />
+	<arg name="Kp_z" value="8.0" />
 	<arg name="init_z" value="1.5" />
 
 	<!-- trajectory_sampler -->
 	<arg name="dt" default="0.01"/>
 
 	<!-- trajectory_generator -->
-	<arg name="mav_v" default="1.0"/>
+	<arg name="mav_v" default="0.5"/>
 	<arg name="mav_a" default="1.0"/>
 	<arg name="mav_ang_v" default="1.0"/>
 	<arg name="mav_ang_a" default="0.5"/>
