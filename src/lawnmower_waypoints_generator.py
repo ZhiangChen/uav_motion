@@ -35,7 +35,7 @@ class PathPlanner(object):
 
 
     def startSearch(self):
-        positions = np.asarray(((0, 0, 2), (-5, 5, 2), (1, -1, 2), (0, 0, 2)))
+        positions = np.asarray(((0, 0, 3), (-2, 0, 3), (-2, -12, 3), (3.5, -12, 3), (3.5, -10, 3), (-2, -10, 3), (-2, -8, 3), (3.5, -8, 3), (3.5, -6, 3), (-2, -6, 3), (-2, -5, 3), (3.5, -5, 3),  (0,0,3)))
         yaws = self.getHeads(positions)
 
         assert positions.shape[0] == len(yaws)
@@ -61,7 +61,7 @@ class PathPlanner(object):
                                         self.current_pose_.pose.position.z))
                 dist = np.linalg.norm(goal_p - current_p)
 
-                if dist < 0.2:
+                if dist < 0.45:
                     break
 
             rospy.sleep(1.)
@@ -93,7 +93,6 @@ class PathPlanner(object):
 
 if __name__ == '__main__':
     rospy.init_node('waypoints_client', anonymous=False)
-    rospy.set_param('/geometric_controller/Kp_z', 8)
     path_planner = PathPlanner()
     path_planner.startSearch()
     try:
