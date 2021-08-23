@@ -7,8 +7,14 @@
 	<arg name="max_acc" value="10.0" />
 	<arg name="Kp_x" value="8.0" />
 	<arg name="Kp_y" value="8.0" />
-	<arg name="Kp_z" value="4.0" />
+	<arg name="Kp_z" value="20.0" />
 	<arg name="init_z" value="1.5" />
+	<!-- regular iris 1.5kg -->
+	<!--arg name="normalizedthrust_constant" default="0.05" />
+	<arg name="normalizedthrust_offset" default="0.1" /-->
+	<!-- heavy iris 2.5kg -->
+	<arg name="normalizedthrust_constant" default="0.08" />
+	<arg name="normalizedthrust_offset" default="0.0" />
 
 	<!-- trajectory_sampler -->
 	<arg name="dt" default="0.01"/>
@@ -17,8 +23,9 @@
 	<arg name="mav_v" default="0.5"/>
 	<arg name="mav_a" default="1.0"/>
 	<arg name="mav_ang_v" default="1.0"/>
-	<arg name="mav_ang_a" default="0.5"/>
+	<arg name="mav_ang_a" default="0.05"/>
 	<arg name="current_ref_pose_as_start" default="true"/>
+	
 
 	<node name="geometric_controller" pkg="uav_motion" type="geometric_controller" output="screen">
 		<remap from="command/bodyrate_command" to="/mavros/setpoint_raw/attitude"/>
@@ -31,6 +38,8 @@
 		<param name="Kp_y" value="$(arg Kp_y)" />
 		<param name="Kp_z" value="$(arg Kp_z)" />
 		<param name="init_z" value="$(arg init_z)" />
+		<param name="normalizedthrust_constant" value="$(arg normalizedthrust_constant)" />
+		<param name="normalizedthrust_offset" value="$(arg normalizedthrust_offset)" />
 	</node>
 
     <node name="trajectory_sampler" pkg="uav_motion" type="trajectory_sampler" output="screen">

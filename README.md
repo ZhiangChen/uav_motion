@@ -32,6 +32,15 @@ cd ~/catkin_ws/
 catkin build
 ```
 
+
+3. ZhiangChen/uav_motion
+```
+cd ~/catkin_ws/src
+git clone https://github.com/ZhiangChen/uav_motion.git
+cd ~/catkin_ws/
+catkin build
+```
+
 # Getting Started
 This gives you an example of using this package in gazebo. 
 
@@ -64,7 +73,7 @@ Parameters:
 - "mav_a": maximum acceleration
 - "mav_ang_v": maximum angular velocity
 - "mav_ang_a": maximum angular acceleration
-- "current_pose_as_start": the current pose will be included as the start point of trajectory if true
+- "current_ref_pose_as_start": the current reference pose will be included as the start point of trajectory if true
 
 ### 2. trajectory_sampler
 Publishers:
@@ -94,3 +103,19 @@ Publisher:
 - "waypoints": uav_motion.msg.waypointsAction <sup>3</sup>
 
 <sup>3</sup> It is a ROS action client.
+
+# Parameter Tuning for Real UAV
+Most of them parameters have been well tuned. However, when having a UAV with different mass and airframe, you need to pay extra attention to the following parameters in geometric_controller:
+```
+/geometric_controller/Kp_x
+/geometric_controller/Kp_y
+/geometric_controller/Kp_z
+/geometric_controller/enable_gazebo_state
+/geometric_controller/enable_sim
+/geometric_controller/max_acc
+/geometric_controller/normalizedthrust_constant
+/geometric_controller/normalizedthrust_offset
+
+```
+The first three parameters `Kp_z`, `Kp_y`, and `Kp_z` determines how responsive the UAV is following the reference pose. For example, if `Kp_z` is too large, there might be an overshoot problem on z-axis. `enable_gazebo_state` and `enable_sim` have to be set to false for real UAVs. `max_acc` determines the maximum absolute total acceleration. For example, if a UAV is taking off with `max_acc=1`, then the total acceleration is 1 on positive z-axis, and the takeoff thrust acceleration is 1+g. The last two parameters `normalizedthrust_constant` and `normalizedthrust_offset` are determined by UAV mass, airframe, etc. When your UAV has a larger mass than Iris, you may need to increase `normalizedthrust_offset`. Otherwise, the UAV can't reach the desired elevation. 
+
