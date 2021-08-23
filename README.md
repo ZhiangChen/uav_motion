@@ -112,10 +112,9 @@ Most of them parameters have been well tuned. However, when having a UAV with di
 /geometric_controller/Kp_z
 /geometric_controller/enable_gazebo_state
 /geometric_controller/enable_sim
-/geometric_controller/max_acc
 /geometric_controller/normalizedthrust_constant
 /geometric_controller/normalizedthrust_offset
 
 ```
-The first three parameters `Kp_z`, `Kp_y`, and `Kp_z` determines how responsive the UAV is following the reference pose. For example, if `Kp_z` is too large, there might be an overshoot problem on z-axis. `enable_gazebo_state` and `enable_sim` have to be set to false for real UAVs. `max_acc` determines the maximum absolute total acceleration. For example, if a UAV is taking off with `max_acc=1`, then the total acceleration is 1 on positive z-axis, and the takeoff thrust acceleration is 1+g. The last two parameters `normalizedthrust_constant` and `normalizedthrust_offset` are determined by UAV mass, airframe, etc. When your UAV has a larger mass than Iris, you may need to increase `normalizedthrust_offset`. Otherwise, the UAV can't reach the desired elevation. 
+The first three parameters `Kp_z`, `Kp_y`, and `Kp_z` determines how responsive the UAV is following the reference pose. For example, if `Kp_z` is too large, there might be an overshoot problem on z-axis. `enable_gazebo_state` and `enable_sim` have to be set to false for real UAVs. The last two parameters `normalizedthrust_constant` and `normalizedthrust_offset` are determined by UAV mass, airframe, etc. When your UAV has a larger mass than Iris, you may need to increase `normalizedthrust_offset`. Otherwise, the UAV can't reach the desired elevation. 
 
