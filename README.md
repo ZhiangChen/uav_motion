@@ -54,7 +54,7 @@ Publishers:
 <sup>1</sup> Either will be remapped to "trajecotry" depending on if yaw is included in key waypoints.
 
 Subscribers:
-- "/mavros/local_position/pose": geometry_msgs::PoseStamped
+- "/reference/pose": geometry_msgs::PoseStamped
 - "waypoints": uav_motion::waypointsGoal <sup>2</sup>
 
 <sup>2</sup> It is a ROS action server.

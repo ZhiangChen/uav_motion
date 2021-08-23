@@ -18,7 +18,7 @@
 	<arg name="mav_a" default="1.0"/>
 	<arg name="mav_ang_v" default="1.0"/>
 	<arg name="mav_ang_a" default="0.5"/>
-	<arg name="current_pose_as_start" default="true"/>
+	<arg name="current_ref_pose_as_start" default="true"/>
 
 	<node name="geometric_controller" pkg="uav_motion" type="geometric_controller" output="screen">
 		<remap from="command/bodyrate_command" to="/mavros/setpoint_raw/attitude"/>
@@ -44,7 +44,7 @@
 		<param name="mav_a" value="$(arg mav_a)" />
 		<param name="mav_ang_v" value="$(arg mav_ang_v)" />
 		<param name="mav_ang_a" value="$(arg mav_ang_a)" />
-		<param name="current_pose_as_start" value="$(arg current_pose_as_start)" />
+		<param name="current_ref_pose_as_start" value="$(arg current_ref_pose_as_start)" />
     </node>
 
 

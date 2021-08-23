@@ -6,26 +6,26 @@ nh_(nh),
 as_(nh_, "waypoints", boost::bind(&TrajectoryGenerator::waypointsCallback, this, _1), false),
 current_velocity_(Eigen::Vector3d::Zero()),
 current_angular_velocity_(Eigen::Vector3d::Zero()),
-current_pose_se3_(Eigen::Affine3d::Identity()),
+ref_pose_se3_(Eigen::Affine3d::Identity()),
 dimension_(dimension),
 max_v_(2.0),
 max_a_(2.0),
 max_ang_v_(1.0),
 max_ang_a_(1.0),
-current_pose_as_start_(false)
+current_ref_pose_as_start_(false)
 {
 	ros::Duration(0.5).sleep();
 	nh_.param<double>("/trajectory_generator/mav_v", max_v_, max_v_);
 	nh_.param<double>("/trajectory_generator/max_a", max_a_, max_a_);
 	nh_.param<double>("/trajectory_generator/max_ang_v", max_ang_v_, max_ang_v_);
 	nh_.param<double>("/trajectory_generator/max_ang_a", max_ang_a_, max_ang_a_);
-	nh_.param<bool>("/trajectory_generator/current_pose_as_start", current_pose_as_start_,
-			current_pose_as_start_);
+	nh_.param<bool>("/trajectory_generator/current_ref_pose_as_start", current_ref_pose_as_start_,
+			current_ref_pose_as_start_);
 
 	pub_trajectory_ = nh_.advertise<mav_planning_msgs::PolynomialTrajectory>("path_segments", 0);
 	pub_trajectory4d_ = nh_.advertise<mav_planning_msgs::PolynomialTrajectory4D>("path_segments_4D", 0);
-	sub_local_pose_ = nh_.subscribe("/mavros/local_position/pose", 1,
-			&TrajectoryGenerator::uavLocalPoseCallback, this);
+	sub_ref_pose_ = nh_.subscribe("/reference/pose", 1,
+			&TrajectoryGenerator::uavReferencePoseCallback, this);
 	sub_local_vel_ = nh_.subscribe("/mavros/local_position/velocity_body", 1,
 				&TrajectoryGenerator::uavVelocityCallback, this);
 	as_.start();
@@ -37,9 +37,9 @@ template <int _N>
 TrajectoryGenerator<_N>::~TrajectoryGenerator(void){}
 
 template <int _N>
-void TrajectoryGenerator<_N>::uavLocalPoseCallback(const geometry_msgs::PoseStamped::ConstPtr& pose)
+void TrajectoryGenerator<_N>::uavReferencePoseCallback(const geometry_msgs::PoseStamped::ConstPtr& pose)
 {
-	tf::poseMsgToEigen(pose->pose, current_pose_se3_);
+	tf::poseMsgToEigen(pose->pose, ref_pose_se3_);
 }
 
 template <int _N>
@@ -57,10 +57,10 @@ void TrajectoryGenerator<_N>::waypointsCallback(const uav_motion::waypointsGoalC
 	yaws_ = goal->yaws;
 	mav_trajectory_generation::Vertex::Vector vertices;
 
-	if (current_pose_as_start_)
+	if (current_ref_pose_as_start_)
 	{
 		geometry_msgs::Pose current_pose;
-		tf::poseEigenToMsg(current_pose_se3_, current_pose);
+		tf::poseEigenToMsg(ref_pose_se3_, current_pose);
 		geometry_msgs::Point position;
 		position.x = current_pose.position.x;
 		position.y = current_pose.position.y;
@@ -115,6 +115,14 @@ void TrajectoryGenerator<_N>::waypointsCallback(const uav_motion::waypointsGoalC
 
 
 	ROS_INFO_STREAM(vertices);
+	
+	if (vertices.size() == 1)
+	{
+		ROS_ERROR("Trajectory generator: trajectory can't be generated with only one point!");
+		result_.success = false;
+		as_.setSucceeded(result_);
+		return;
+	}
 
 	std::vector<double> segment_times;
 	segment_times = estimateSegmentTimes(vertices, max_v_, max_a_);

@@ -26,7 +26,7 @@ public:
 	TrajectoryGenerator(ros::NodeHandle& nh, int dimension);
 	~TrajectoryGenerator(void);
 
-	void uavLocalPoseCallback(const geometry_msgs::PoseStamped::ConstPtr& pose);
+	void uavReferencePoseCallback(const geometry_msgs::PoseStamped::ConstPtr& pose);
 	void uavVelocityCallback(const geometry_msgs::TwistStamped::ConstPtr& vel);
 	void waypointsCallback(const uav_motion::waypointsGoalConstPtr& goal);
 
@@ -34,7 +34,7 @@ protected:
 	ros::NodeHandle& nh_;
 	ros::Publisher pub_trajectory_;
 	ros::Publisher pub_trajectory4d_;
-	ros::Subscriber sub_local_pose_;
+	ros::Subscriber sub_ref_pose_;
 	ros::Subscriber sub_local_vel_;
 	actionlib::SimpleActionServer<uav_motion::waypointsAction> as_;
 	uav_motion::waypointsFeedback feedback_;
@@ -42,7 +42,7 @@ protected:
 	std::vector<geometry_msgs::Point> positions_;
 	std::vector<double> yaws_;
 
-	Eigen::Affine3d current_pose_se3_;
+	Eigen::Affine3d ref_pose_se3_;
 	Eigen::Vector3d current_velocity_;
 	Eigen::Vector3d current_angular_velocity_;
 	double max_v_; // m/s
@@ -52,7 +52,7 @@ protected:
 
 	const int dimension_;
 	const int derivative_to_optimize_ = mav_trajectory_generation::derivative_order::SNAP;
-	bool current_pose_as_start_;
+	bool current_ref_pose_as_start_;
 	mav_trajectory_generation::NonlinearOptimizationParameters parameters_;
 
 

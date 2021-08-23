@@ -10,6 +10,7 @@ import uav_motion.msg
 import actionlib
 import numpy as np
 from tf.transformations import euler_from_quaternion
+from param_update import update_Kp_z
 
 
 
@@ -93,6 +94,7 @@ class PathPlanner(object):
 
 if __name__ == '__main__':
     rospy.init_node('waypoints_client', anonymous=False)
+    update_Kp_z(8)
     path_planner = PathPlanner()
     path_planner.startSearch()
     try:

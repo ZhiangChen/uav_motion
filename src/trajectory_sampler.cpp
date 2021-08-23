@@ -63,7 +63,7 @@ void TrajectorySamplerNode::pathSegmentsCallback(const mav_planning_msgs::Polyno
 	}
 	else
 	{
-		ROS_INFO("Trajectory sampler: received %lu waypoints", segments_message.segments.size());
+		ROS_INFO("Trajectory sampler: received %lu new waypoints", segments_message.segments.size());
 	}
 
 	bool success = mav_trajectory_generation::polynomialTrajectoryMsgToTrajectory(segments_message,
