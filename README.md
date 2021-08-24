@@ -105,7 +105,7 @@ Publisher:
 <sup>3</sup> It is a ROS action client.
 
 # Parameter Tuning for Real UAV
-Most of them parameters have been well tuned. However, when having a UAV with different mass and airframe, you need to pay extra attention to the following parameters in geometric_controller:
+Most of the parameters have been well tuned. However, when having a UAV with different mass, airframe, and battery, you need to pay extra attention to the following parameters in geometric_controller:
 ```
 /geometric_controller/Kp_x
 /geometric_controller/Kp_y
@@ -116,5 +116,5 @@ Most of them parameters have been well tuned. However, when having a UAV with di
 /geometric_controller/normalizedthrust_offset
 
 ```
-The first three parameters `Kp_z`, `Kp_y`, and `Kp_z` determines how responsive the UAV is following the reference pose. For example, if `Kp_z` is too large, there might be an overshoot problem on z-axis. `enable_gazebo_state` and `enable_sim` have to be set to false for real UAVs. The last two parameters `normalizedthrust_constant` and `normalizedthrust_offset` are determined by UAV mass, airframe, etc. When your UAV has a larger mass than Iris, you may need to increase `normalizedthrust_offset`. Otherwise, the UAV can't reach the desired elevation. 
+The first three parameters `Kp_z`, `Kp_y`, and `Kp_z` determines how responsive the UAV is following the reference pose. For example, if `Kp_z` is too large, there might be an overshoot problem on z-axis. `enable_gazebo_state` and `enable_sim` have to be set to false for real UAVs. The last two parameters `normalizedthrust_constant` and `normalizedthrust_offset` are determined by UAV mass, airframe, etc. When your UAV has a larger mass than Iris, you may need to increase `normalizedthrust_offset`. Otherwise, the UAV can't reach the desired elevation. When the battery is low, you may also need to increase normalizedthrust_offset. 
 
